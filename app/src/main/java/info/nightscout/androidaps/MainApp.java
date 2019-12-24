@@ -1,11 +1,13 @@
 package info.nightscout.androidaps;
 
-import android.content.BroadcastReceiver;
 import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.os.SystemClock;
 
+import androidx.annotation.ColorRes;
 import androidx.annotation.PluralsRes;
+import androidx.annotation.StringRes;
+import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.crashlytics.android.Crashlytics;
@@ -14,6 +16,7 @@ import com.j256.ormlite.android.apptools.OpenHelperManager;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
+import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +28,7 @@ import javax.inject.Inject;
 import dagger.android.AndroidInjector;
 import dagger.android.DaggerApplication;
 import info.nightscout.androidaps.data.ConstraintChecker;
+import info.nightscout.androidaps.data.Profile;
 import info.nightscout.androidaps.db.DatabaseHelper;
 import info.nightscout.androidaps.dependencyInjection.DaggerAppComponent;
 import info.nightscout.androidaps.interfaces.PluginBase;
@@ -36,6 +40,7 @@ import info.nightscout.androidaps.plugins.aps.openAPSAMA.OpenAPSAMAPlugin;
 import info.nightscout.androidaps.plugins.aps.openAPSMA.OpenAPSMAPlugin;
 import info.nightscout.androidaps.plugins.aps.openAPSSMB.OpenAPSSMBPlugin;
 import info.nightscout.androidaps.plugins.configBuilder.ConfigBuilderPlugin;
+import info.nightscout.androidaps.plugins.configBuilder.ProfileFunctions;
 import info.nightscout.androidaps.plugins.constraints.dstHelper.DstHelperPlugin;
 import info.nightscout.androidaps.plugins.constraints.objectives.ObjectivesPlugin;
 import info.nightscout.androidaps.plugins.constraints.safety.SafetyPlugin;
@@ -50,8 +55,6 @@ import info.nightscout.androidaps.plugins.general.maintenance.LoggerUtils;
 import info.nightscout.androidaps.plugins.general.maintenance.MaintenancePlugin;
 import info.nightscout.androidaps.plugins.general.nsclient.NSClientPlugin;
 import info.nightscout.androidaps.plugins.general.nsclient.NSUpload;
-import info.nightscout.androidaps.plugins.general.nsclient.receivers.AckAlarmReceiver;
-import info.nightscout.androidaps.plugins.general.nsclient.receivers.DBAccessReceiver;
 import info.nightscout.androidaps.plugins.general.overview.OverviewPlugin;
 import info.nightscout.androidaps.plugins.general.persistentNotification.PersistentNotificationPlugin;
 import info.nightscout.androidaps.plugins.general.smsCommunicator.SmsCommunicatorPlugin;
@@ -94,7 +97,7 @@ import info.nightscout.androidaps.services.Intents;
 import info.nightscout.androidaps.utils.ActivityMonitor;
 import info.nightscout.androidaps.utils.FabricPrivacy;
 import info.nightscout.androidaps.utils.LocaleHelper;
-import info.nightscout.androidaps.utils.sharedPreferences.SPImpl;
+import info.nightscout.androidaps.utils.SP;
 import io.fabric.sdk.android.Fabric;
 
 import static info.nightscout.androidaps.plugins.constraints.versionChecker.VersionCheckerUtilsKt.triggerCheckVersion;
@@ -102,7 +105,6 @@ import static info.nightscout.androidaps.plugins.constraints.versionChecker.Vers
 
 public class MainApp extends DaggerApplication {
     static Logger log = LoggerFactory.getLogger(L.CORE);
-    static KeepAliveReceiver keepAliveReceiver;
 
     static MainApp sInstance;
     public static Resources sResources;
@@ -115,11 +117,7 @@ public class MainApp extends DaggerApplication {
     static ArrayList<PluginBase> pluginsList = null;
 
     static DataReceiver dataReceiver = new DataReceiver();
-    static NSAlarmReceiver alarmReciever = new NSAlarmReceiver();
-    static AckAlarmReceiver ackAlarmReciever = new AckAlarmReceiver();
-    static DBAccessReceiver dbAccessReciever = new DBAccessReceiver();
-    LocalBroadcastManager lbm;
-    BroadcastReceiver btReceiver;
+    static NSAlarmReceiver alarmReceiver = new NSAlarmReceiver();
     TimeDateOrTZChangeReceiver timeDateOrTZChangeReceiver;
 
     public static boolean devBranch;
@@ -177,7 +175,6 @@ public class MainApp extends DaggerApplication {
 
         //trigger here to see the new version on app start after an update
         triggerCheckVersion();
-        //setBTReceiver();
 
         if (pluginsList == null) {
             pluginsList = new ArrayList<>();
@@ -249,9 +246,11 @@ public class MainApp extends DaggerApplication {
             new Thread(() -> {
                 SystemClock.sleep(5000);
                 ConfigBuilderPlugin.getPlugin().getCommandQueue().readStatus("Initialization", null);
-                startKeepAliveService();
             }).start();
         }
+
+        new Thread(() -> KeepAliveReceiver.setAlarm(this)).start();
+        doMigrations();
     }
 
     @Override
@@ -263,8 +262,33 @@ public class MainApp extends DaggerApplication {
                 .build();
     }
 
+    private void doMigrations() {
+
+        // guarantee that the unreachable threshold is at least 30 and of type String
+        // Added in 1.57 at 21.01.2018
+        int unreachable_threshold = SP.getInt(R.string.key_pump_unreachable_threshold, 30);
+        SP.remove(R.string.key_pump_unreachable_threshold);
+        if (unreachable_threshold < 30) unreachable_threshold = 30;
+        SP.putString(R.string.key_pump_unreachable_threshold, Integer.toString(unreachable_threshold));
+
+        // 2.5 -> 2.6
+        if (!SP.contains(R.string.key_units)) {
+            String newUnits = Constants.MGDL;
+            Profile p = ProfileFunctions.getInstance().getProfile();
+            if (p != null && p.getData() != null && p.getData().has("units")) {
+                try {
+                    newUnits = p.getData().getString("units");
+                } catch (JSONException e) {
+                    log.error("Unhandled exception", e);
+                }
+            }
+            SP.putString(R.string.key_units, newUnits);
+        }
+    }
+
+
     private void registerLocalBroadcastReceiver() {
-        lbm = LocalBroadcastManager.getInstance(this);
+        LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
         lbm.registerReceiver(dataReceiver, new IntentFilter(Intents.ACTION_NEW_TREATMENT));
         lbm.registerReceiver(dataReceiver, new IntentFilter(Intents.ACTION_CHANGED_TREATMENT));
         lbm.registerReceiver(dataReceiver, new IntentFilter(Intents.ACTION_REMOVED_TREATMENT));
@@ -279,39 +303,21 @@ public class MainApp extends DaggerApplication {
         lbm.registerReceiver(dataReceiver, new IntentFilter(Intents.ACTION_NEW_CAL));
 
         //register alarms
-        lbm.registerReceiver(alarmReciever, new IntentFilter(Intents.ACTION_ALARM));
-        lbm.registerReceiver(alarmReciever, new IntentFilter(Intents.ACTION_ANNOUNCEMENT));
-        lbm.registerReceiver(alarmReciever, new IntentFilter(Intents.ACTION_CLEAR_ALARM));
-        lbm.registerReceiver(alarmReciever, new IntentFilter(Intents.ACTION_URGENT_ALARM));
-
-        //register ack alarm
-        lbm.registerReceiver(ackAlarmReciever, new IntentFilter(Intents.ACTION_ACK_ALARM));
-
-        //register dbaccess
-        lbm.registerReceiver(dbAccessReciever, new IntentFilter(Intents.ACTION_DATABASE));
+        lbm.registerReceiver(alarmReceiver, new IntentFilter(Intents.ACTION_ALARM));
+        lbm.registerReceiver(alarmReceiver, new IntentFilter(Intents.ACTION_ANNOUNCEMENT));
+        lbm.registerReceiver(alarmReceiver, new IntentFilter(Intents.ACTION_CLEAR_ALARM));
+        lbm.registerReceiver(alarmReceiver, new IntentFilter(Intents.ACTION_URGENT_ALARM));
 
         this.timeDateOrTZChangeReceiver = new TimeDateOrTZChangeReceiver();
         this.timeDateOrTZChangeReceiver.registerBroadcasts(this);
 
     }
 
-    private void startKeepAliveService() {
-        if (keepAliveReceiver == null) {
-            keepAliveReceiver = new KeepAliveReceiver();
-            keepAliveReceiver.setAlarm(this);
-        }
-    }
-
-    public void stopKeepAliveService() {
-        if (keepAliveReceiver != null)
-            KeepAliveReceiver.cancelAlarm(this);
-    }
-
-    public static String gs(int id) {
+    public static String gs(@StringRes int id) {
         return sResources.getString(id);
     }
 
-    public static String gs(int id, Object... args) {
+    public static String gs(@StringRes int id, Object... args) {
         return sResources.getString(id, args);
     }
 
@@ -319,8 +325,8 @@ public class MainApp extends DaggerApplication {
         return sResources.getQuantityString(id, quantity, args);
     }
 
-    public static int gc(int id) {
-        return sResources.getColor(id);
+    public static int gc(@ColorRes int id) {
+        return ContextCompat.getColor(instance(), id);
     }
 
     public static MainApp instance() {
@@ -329,13 +335,6 @@ public class MainApp extends DaggerApplication {
 
     public static DatabaseHelper getDbHelper() {
         return sDatabaseHelper;
-    }
-
-    public static void closeDbHelper() {
-        if (sDatabaseHelper != null) {
-            sDatabaseHelper.close();
-            sDatabaseHelper = null;
-        }
     }
 
     public static FirebaseAnalytics getFirebaseAnalytics() {
@@ -440,20 +439,12 @@ public class MainApp extends DaggerApplication {
     public void onTerminate() {
         if (L.isEnabled(L.CORE))
             log.debug("onTerminate");
-        super.onTerminate();
-        if (sDatabaseHelper != null) {
-            sDatabaseHelper.close();
-            sDatabaseHelper = null;
-        }
 
-        if (btReceiver != null) {
-            unregisterReceiver(btReceiver);
-        }
-
-        if (timeDateOrTZChangeReceiver != null) {
+        if (timeDateOrTZChangeReceiver != null)
             unregisterReceiver(timeDateOrTZChangeReceiver);
-        }
         unregisterActivityLifecycleCallbacks(ActivityMonitor.INSTANCE);
+        KeepAliveReceiver.cancelAlarm(this);
+        super.onTerminate();
     }
 
     public static int dpToPx(int dp) {
