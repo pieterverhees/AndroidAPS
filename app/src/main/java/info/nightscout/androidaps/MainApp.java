@@ -157,7 +157,7 @@ public class MainApp extends DaggerApplication {
         registerActivityLifecycleCallbacks(ActivityMonitor.INSTANCE);
 
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
-        mFirebaseAnalytics.setAnalyticsCollectionEnabled(!Boolean.getBoolean("disableFirebase"));
+        mFirebaseAnalytics.setAnalyticsCollectionEnabled(!Boolean.getBoolean("disableFirebase") && FabricPrivacy.fabricEnabled());
 
         JodaTimeAndroid.init(this);
 
