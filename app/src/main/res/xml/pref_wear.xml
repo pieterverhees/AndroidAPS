@@ -5,6 +5,7 @@
         android:title="@string/wear_settings">
 
         <PreferenceScreen
+            android:key="@string/wear_settings"
             android:title="@string/wear_settings">
 
             <SwitchPreference

@@ -1,4 +1,4 @@
-package com.andreabaccega.formedittextvalidator;
+package info.nightscout.androidaps.utils.textValidator.validators;
 
 public class PersonNameValidator extends RegexpValidator {
     public PersonNameValidator(String message) {

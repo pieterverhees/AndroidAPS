@@ -1,4 +1,4 @@
-package com.andreabaccega.formedittextvalidator;
+package info.nightscout.androidaps.utils.textValidator.validators;
 
 import java.util.regex.Pattern;
 

@@ -1,10 +1,19 @@
 package info.nightscout.androidaps.activities;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.preference.EditTextPreference;
+import androidx.preference.ListPreference;
+import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceGroup;
+import androidx.preference.PreferenceManager;
+
+import java.util.Arrays;
 
 import javax.inject.Inject;
 
@@ -15,12 +24,16 @@ import dagger.android.support.AndroidSupportInjection;
 import info.nightscout.androidaps.Config;
 import info.nightscout.androidaps.MainApp;
 import info.nightscout.androidaps.R;
+import info.nightscout.androidaps.data.Profile;
+import info.nightscout.androidaps.events.EventPreferenceChange;
+import info.nightscout.androidaps.events.EventRebuildTabs;
 import info.nightscout.androidaps.interfaces.PluginBase;
 import info.nightscout.androidaps.interfaces.PluginType;
 import info.nightscout.androidaps.plugins.aps.loop.LoopPlugin;
 import info.nightscout.androidaps.plugins.aps.openAPSAMA.OpenAPSAMAPlugin;
 import info.nightscout.androidaps.plugins.aps.openAPSMA.OpenAPSMAPlugin;
 import info.nightscout.androidaps.plugins.aps.openAPSSMB.OpenAPSSMBPlugin;
+import info.nightscout.androidaps.plugins.bus.RxBus;
 import info.nightscout.androidaps.plugins.constraints.safety.SafetyPlugin;
 import info.nightscout.androidaps.plugins.general.automation.AutomationPlugin;
 import info.nightscout.androidaps.plugins.general.careportal.CareportalPlugin;
@@ -47,11 +60,14 @@ import info.nightscout.androidaps.plugins.source.EversensePlugin;
 import info.nightscout.androidaps.plugins.source.GlimpPlugin;
 import info.nightscout.androidaps.plugins.source.PoctechPlugin;
 import info.nightscout.androidaps.plugins.source.TomatoPlugin;
+import info.nightscout.androidaps.utils.OKDialog;
+import info.nightscout.androidaps.utils.SP;
+import info.nightscout.androidaps.utils.SafeParse;
 
 /**
  * Created by adrian on 2019-12-23.
  */
-public class MyPreferenceFragment extends PreferenceFragmentCompat implements HasAndroidInjector {
+public class MyPreferenceFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener, HasAndroidInjector {
     private Integer id;
 
     @Inject AutomationPlugin automationPlugin;
@@ -96,19 +112,17 @@ public class MyPreferenceFragment extends PreferenceFragmentCompat implements Ha
         id = args.getInt("id");
     }
 
-    private void addPreferencesFromResourceIfEnabled(PluginBase p, PluginType type) {
-        if (p.isEnabled(type) && p.getPreferencesId() != -1)
-            addPreferencesFromResource(p.getPreferencesId());
+    private void addPreferencesFromResourceIfEnabled(PluginBase p, String rootKey) {
+        if (p.isEnabled() && p.getPreferencesId() != -1)
+            setPreferencesFromResource(p.getPreferencesId(), rootKey);
+    }
+
+    @Override public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        PreferenceManager.getDefaultSharedPreferences(getContext()).registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        //setPreferencesFromResource(R.xml.mainfile, rootKey);
-    }
-
-    @Override
-    public void onCreate(final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
         if (savedInstanceState != null && savedInstanceState.containsKey("id")) {
             id = savedInstanceState.getInt("id");
         }
@@ -125,59 +139,131 @@ public class MyPreferenceFragment extends PreferenceFragmentCompat implements Ha
 
             addPreferencesFromResource(R.xml.pref_overview);
 
-            addPreferencesFromResourceIfEnabled(eversensePlugin, PluginType.BGSOURCE);
-            addPreferencesFromResourceIfEnabled(dexcomPlugin, PluginType.BGSOURCE);
-            addPreferencesFromResourceIfEnabled(tomatoPlugin, PluginType.BGSOURCE);
-            addPreferencesFromResourceIfEnabled(poctechPlugin, PluginType.BGSOURCE);
-            addPreferencesFromResourceIfEnabled(glimpPlugin, PluginType.BGSOURCE);
-            addPreferencesFromResourceIfEnabled(careportalPlugin, PluginType.GENERAL);
-            addPreferencesFromResourceIfEnabled(safetyPlugin, PluginType.CONSTRAINTS);
+            addPreferencesFromResourceIfEnabled(eversensePlugin, rootKey);
+            addPreferencesFromResourceIfEnabled(dexcomPlugin, rootKey);
+            addPreferencesFromResourceIfEnabled(tomatoPlugin, rootKey);
+            addPreferencesFromResourceIfEnabled(poctechPlugin, rootKey);
+            addPreferencesFromResourceIfEnabled(glimpPlugin, rootKey);
+            addPreferencesFromResourceIfEnabled(careportalPlugin, rootKey);
+            addPreferencesFromResourceIfEnabled(safetyPlugin, rootKey);
             if (Config.APS) {
-                addPreferencesFromResourceIfEnabled(loopPlugin, PluginType.LOOP);
-                addPreferencesFromResourceIfEnabled(openAPSMAPlugin, PluginType.APS);
-                addPreferencesFromResourceIfEnabled(openAPSAMAPlugin, PluginType.APS);
-                addPreferencesFromResourceIfEnabled(openAPSSMBPlugin, PluginType.APS);
+                addPreferencesFromResourceIfEnabled(loopPlugin, rootKey);
+                addPreferencesFromResourceIfEnabled(openAPSMAPlugin, rootKey);
+                addPreferencesFromResourceIfEnabled(openAPSAMAPlugin, rootKey);
+                addPreferencesFromResourceIfEnabled(openAPSSMBPlugin, rootKey);
             }
 
-            addPreferencesFromResourceIfEnabled(SensitivityAAPSPlugin.getPlugin(), PluginType.SENSITIVITY);
-            addPreferencesFromResourceIfEnabled(SensitivityWeightedAveragePlugin.getPlugin(), PluginType.SENSITIVITY);
-            addPreferencesFromResourceIfEnabled(SensitivityOref0Plugin.getPlugin(), PluginType.SENSITIVITY);
-            addPreferencesFromResourceIfEnabled(SensitivityOref1Plugin.getPlugin(), PluginType.SENSITIVITY);
+            addPreferencesFromResourceIfEnabled(SensitivityAAPSPlugin.getPlugin(), rootKey);
+            addPreferencesFromResourceIfEnabled(SensitivityWeightedAveragePlugin.getPlugin(), rootKey);
+            addPreferencesFromResourceIfEnabled(SensitivityOref0Plugin.getPlugin(), rootKey);
+            addPreferencesFromResourceIfEnabled(SensitivityOref1Plugin.getPlugin(), rootKey);
 
             if (Config.PUMPDRIVERS) {
-                addPreferencesFromResourceIfEnabled(danaRPlugin, PluginType.PUMP);
-                addPreferencesFromResourceIfEnabled(danaRKoreanPlugin, PluginType.PUMP);
-                addPreferencesFromResourceIfEnabled(danaRv2Plugin, PluginType.PUMP);
-                addPreferencesFromResourceIfEnabled(danaRSPlugin, PluginType.PUMP);
-                addPreferencesFromResourceIfEnabled(LocalInsightPlugin.getPlugin(), PluginType.PUMP);
-                addPreferencesFromResourceIfEnabled(ComboPlugin.getPlugin(), PluginType.PUMP);
-                addPreferencesFromResourceIfEnabled(MedtronicPumpPlugin.getPlugin(), PluginType.PUMP);
+                addPreferencesFromResourceIfEnabled(danaRPlugin, rootKey);
+                addPreferencesFromResourceIfEnabled(danaRKoreanPlugin, rootKey);
+                addPreferencesFromResourceIfEnabled(danaRv2Plugin, rootKey);
+                addPreferencesFromResourceIfEnabled(danaRSPlugin, rootKey);
+                addPreferencesFromResourceIfEnabled(LocalInsightPlugin.getPlugin(), rootKey);
+                addPreferencesFromResourceIfEnabled(ComboPlugin.getPlugin(), rootKey);
+                addPreferencesFromResourceIfEnabled(MedtronicPumpPlugin.getPlugin(), rootKey);
             }
 
             if (!Config.NSCLIENT) {
-                addPreferencesFromResourceIfEnabled(virtualPumpPlugin, PluginType.PUMP);
+                addPreferencesFromResourceIfEnabled(virtualPumpPlugin, rootKey);
             }
 
-            addPreferencesFromResourceIfEnabled(insulinOrefFreePeakPlugin, PluginType.INSULIN);
+            addPreferencesFromResourceIfEnabled(insulinOrefFreePeakPlugin, rootKey);
 
-            addPreferencesFromResourceIfEnabled(NSClientPlugin.getPlugin(), PluginType.GENERAL);
-            addPreferencesFromResourceIfEnabled(tidepoolPlugin, PluginType.GENERAL);
-            addPreferencesFromResourceIfEnabled(smsCommunicatorPlugin, PluginType.GENERAL);
-            addPreferencesFromResourceIfEnabled(automationPlugin, PluginType.GENERAL);
+            addPreferencesFromResourceIfEnabled(NSClientPlugin.getPlugin(), rootKey);
+            addPreferencesFromResourceIfEnabled(tidepoolPlugin, rootKey);
+            addPreferencesFromResourceIfEnabled(smsCommunicatorPlugin, rootKey);
+            addPreferencesFromResourceIfEnabled(automationPlugin, rootKey);
 
             addPreferencesFromResource(R.xml.pref_others);
             addPreferencesFromResource(R.xml.pref_datachoices);
 
-            addPreferencesFromResourceIfEnabled(wearPlugin, PluginType.GENERAL);
-            addPreferencesFromResourceIfEnabled(statusLinePlugin, PluginType.GENERAL);
+            addPreferencesFromResourceIfEnabled(wearPlugin, rootKey);
+            addPreferencesFromResourceIfEnabled(statusLinePlugin, rootKey);
         }
 
-        PreferencesActivity.initSummary(getPreferenceScreen());
+        initSummary(getPreferenceScreen());
 
         for (PluginBase plugin : MainApp.getPluginsList()) {
             plugin.preprocessPreferences(this);
         }
     }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        RxBus.Companion.getINSTANCE().send(new EventPreferenceChange(key));
+        if (key.equals(MainApp.gs(R.string.key_language))) {
+            RxBus.Companion.getINSTANCE().send(new EventRebuildTabs(true));
+            //recreate() does not update language so better close settings
+            getActivity().finish();
+        }
+        if (key.equals(MainApp.gs(R.string.key_short_tabtitles))) {
+            RxBus.Companion.getINSTANCE().send(new EventRebuildTabs());
+        }
+        if (key.equals(MainApp.gs(R.string.key_units))) {
+            getActivity().recreate();
+            return;
+        }
+        if (key.equals(MainApp.gs(R.string.key_openapsama_useautosens)) && SP.getBoolean(R.string.key_openapsama_useautosens, false)) {
+            OKDialog.show(getActivity(), MainApp.gs(R.string.configbuilder_sensitivity), MainApp.gs(R.string.sensitivity_warning));
+        }
+        updatePrefSummary(findPreference(key));
+    }
+
+    private static void adjustUnitDependentPrefs(Preference pref) {
+        // convert preferences values to current units
+        String[] unitDependent = new String[]{
+                MainApp.gs(R.string.key_hypo_target),
+                MainApp.gs(R.string.key_activity_target),
+                MainApp.gs(R.string.key_eatingsoon_target),
+                MainApp.gs(R.string.key_high_mark),
+                MainApp.gs(R.string.key_low_mark)
+        };
+        if (Arrays.asList(unitDependent).contains(pref.getKey())) {
+            EditTextPreference editTextPref = (EditTextPreference) pref;
+            String converted = Profile.toCurrentUnitsString(SafeParse.stringToDouble(editTextPref.getText()));
+            editTextPref.setSummary(converted);
+            editTextPref.setText(converted);
+        }
+    }
+
+    private static void updatePrefSummary(Preference pref) {
+        if (pref instanceof ListPreference) {
+            ListPreference listPref = (ListPreference) pref;
+            pref.setSummary(listPref.getEntry());
+        }
+        if (pref instanceof EditTextPreference) {
+            EditTextPreference editTextPref = (EditTextPreference) pref;
+            if (pref.getKey().contains("password") || pref.getKey().contains("secret")) {
+                pref.setSummary("******");
+            } else if (editTextPref.getText() != null) {
+                ((EditTextPreference) pref).setDialogMessage(editTextPref.getDialogMessage());
+                pref.setSummary(editTextPref.getText());
+            } else {
+                for (PluginBase plugin : MainApp.getPluginsList()) {
+                    plugin.updatePreferenceSummary(pref);
+                }
+            }
+        }
+        if (pref != null)
+            adjustUnitDependentPrefs(pref);
+    }
+
+    public static void initSummary(Preference p) {
+        if (p instanceof PreferenceGroup) {
+            PreferenceGroup pGrp = (PreferenceGroup) p;
+            for (int i = 0; i < pGrp.getPreferenceCount(); i++) {
+                initSummary(pGrp.getPreference(i));
+            }
+        } else {
+            updatePrefSummary(p);
+        }
+    }
+
 
     @Override
     public void onSaveInstanceState(Bundle outState) {

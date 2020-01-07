@@ -1,10 +1,10 @@
-package com.andreabaccega.widget;
+package info.nightscout.androidaps.utils.textValidator;
 
 import android.content.Context;
 import android.text.TextWatcher;
 import android.widget.EditText;
 
-import com.andreabaccega.formedittextvalidator.Validator;
+import info.nightscout.androidaps.utils.textValidator.validators.Validator;
 
 /**
  * Interface for encapsulating validation of an EditText control

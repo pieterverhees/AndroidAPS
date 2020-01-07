@@ -1,20 +1,18 @@
-package com.andreabaccega.widget;
+package info.nightscout.androidaps.utils.textValidators;
 
 
 import android.content.Context;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 
 import androidx.appcompat.widget.AppCompatEditText;
 
-import com.andreabaccega.formedittextvalidator.Validator;
+import info.nightscout.androidaps.utils.textValidator.validators.Validator;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import info.nightscout.androidaps.utils.textValidator.DefaultEditTextValidator;
+import info.nightscout.androidaps.utils.textValidator.EditTextValidator;
 
 /**
  * EditText Extension to be used in order to create forms in android.
@@ -60,7 +58,7 @@ public class FormEditText extends AppCompatEditText {
 
     /**
      * Calling *testValidity()* will cause the EditText to go through
-     * customValidators and call {@link com.andreabaccega.formedittextvalidator.Validator#isValid(EditText)}
+     * customValidators and call {@link info.nightscout.androidaps.utils.textValidator.validators.Validator#isValid(EditText)}
      *
      * @return true if the validity passes false otherwise.
      */

@@ -4,7 +4,7 @@
 
     <PreferenceCategory android:title="@string/nsclientinternal_title">
 
-        <com.andreabaccega.widget.ValidatingEditTextPreference
+        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             android:defaultValue="https://{YOUR-SITE}.azurewebsites.net/"
             android:dialogMessage="@string/nsclientinternal_url_dialogmessage"
             android:inputType="textUri"
@@ -30,7 +30,9 @@
             android:key="@string/key_ns_uploadlocalprofile"
             android:title="@string/ns_ploadlocalprofile" />
 
-        <PreferenceScreen android:title="@string/ns_alarmoptions">
+        <PreferenceScreen
+            android:key="@string/ns_alarmoptions"
+            android:title="@string/ns_alarmoptions">
 
             <SwitchPreference
                 android:defaultValue="false"
@@ -57,7 +59,7 @@
                 android:key="@string/key_nsalarm_staledata"
                 android:title="@string/nsalarm_staledata" />
 
-            <com.andreabaccega.widget.ValidatingEditTextPreference
+            <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
                 android:defaultValue="16"
                 android:digits="0123456789"
                 android:inputType="number"
@@ -75,7 +77,7 @@
                 android:key="@string/key_nsalarm_urgent_staledata"
                 android:title="@string/nsalarm_urgentstaledata" />
 
-            <com.andreabaccega.widget.ValidatingEditTextPreference
+            <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
                 android:defaultValue="31"
                 android:digits="0123456789"
                 android:inputType="number"
@@ -90,7 +92,9 @@
 
         </PreferenceScreen>
 
-        <PreferenceScreen android:title="@string/connectionsettings_title">
+        <PreferenceScreen
+            android:key="@string/connectionsettings_title"
+            android:title="@string/connectionsettings_title">
 
             <SwitchPreference
                 android:defaultValue="false"
@@ -117,7 +121,9 @@
 
         </PreferenceScreen>
 
-       <PreferenceScreen android:title="@string/advancedsettings_title">
+       <PreferenceScreen
+           android:key="@string/advancedsettings_title"
+           android:title="@string/advancedsettings_title">
 
             <SwitchPreference
                 android:defaultValue="true"

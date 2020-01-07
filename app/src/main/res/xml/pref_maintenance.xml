@@ -5,7 +5,7 @@
         android:key="maintenance"
         android:title="@string/maintenance_settings">
 
-        <com.andreabaccega.widget.ValidatingEditTextPreference
+        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             android:defaultValue="logs@androidaps.org"
             android:dialogMessage="@string/maintenance_email"
             android:inputType="textEmailAddress"

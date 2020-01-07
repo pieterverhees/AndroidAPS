@@ -1,4 +1,4 @@
-package com.andreabaccega.formedittextvalidator;
+package info.nightscout.androidaps.utils.textValidator.validators;
 
 import android.annotation.SuppressLint;
 import android.text.TextUtils;

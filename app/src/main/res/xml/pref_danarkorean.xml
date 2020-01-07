@@ -25,7 +25,9 @@
             android:key="@string/key_danar_visualizeextendedaspercentage"
             android:title="@string/danar_visualizeextendedaspercentage_title" />
 
-        <PreferenceScreen android:title="@string/advancedsettings_title">
+        <PreferenceScreen
+            android:key="@string/advancedsettings_title"
+            android:title="@string/advancedsettings_title">
 
             <PreferenceCategory android:title="@string/bluetooth">
 

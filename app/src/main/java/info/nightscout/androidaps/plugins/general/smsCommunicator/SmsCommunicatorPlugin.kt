@@ -7,7 +7,6 @@ import android.text.TextUtils
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import com.andreabaccega.widget.ValidatingEditTextPreference
 import info.nightscout.androidaps.Constants
 import info.nightscout.androidaps.R
 import info.nightscout.androidaps.data.DetailedBolusInfo
@@ -41,6 +40,7 @@ import info.nightscout.androidaps.utils.*
 import info.nightscout.androidaps.utils.extensions.plusAssign
 import info.nightscout.androidaps.utils.resources.ResourceHelper
 import info.nightscout.androidaps.utils.sharedPreferences.SP
+import info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import org.apache.commons.lang3.StringUtils

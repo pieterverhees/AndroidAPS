@@ -5,7 +5,7 @@
         android:key="InsulinOrefFreePeak"
         android:title="@string/insulin_oref_peak">
 
-        <com.andreabaccega.widget.ValidatingEditTextPreference
+        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             validate:testType="numericRange"
             validate:minNumber="35"
             validate:maxNumber="120"

@@ -1,4 +1,4 @@
-package com.andreabaccega.formedittextvalidator;
+package info.nightscout.androidaps.utils.textValidator.validators;
 
 import android.os.Build;
 import android.util.Patterns;

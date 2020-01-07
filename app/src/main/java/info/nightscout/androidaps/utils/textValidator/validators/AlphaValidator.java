@@ -1,4 +1,4 @@
-package com.andreabaccega.formedittextvalidator;
+package info.nightscout.androidaps.utils.textValidator.validators;
 
 public class AlphaValidator extends RegexpValidator {
     public AlphaValidator(String message) {

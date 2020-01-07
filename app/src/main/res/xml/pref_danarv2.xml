@@ -21,7 +21,9 @@
             android:key="@string/key_danars_bolusspeed"
             android:title="@string/bolusspeed" />
 
-        <PreferenceScreen android:title="@string/advancedsettings_title">
+        <PreferenceScreen
+            android:key="@string/advancedsettings_title"
+            android:title="@string/advancedsettings_title">
 
             <PreferenceCategory android:title="@string/bluetooth">
 

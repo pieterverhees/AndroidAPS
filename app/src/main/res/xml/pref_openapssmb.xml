@@ -97,7 +97,9 @@
             android:enabled="false"
             />
 
-        <PreferenceScreen android:title="@string/advancedsettings_title">
+        <PreferenceScreen
+            android:key="@string/advancedsettings_title"
+            android:title="@string/advancedsettings_title">
 
             <Preference android:summary="@string/openapsama_link_to_preferncejson_doc_txt">
                 <intent
@@ -111,7 +113,7 @@
                 android:summary="@string/always_use_shortavg_summary"
                 android:title="@string/always_use_shortavg" />
 
-            <com.andreabaccega.widget.ValidatingEditTextPreference
+            <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
                 android:defaultValue="3"
                 android:dialogMessage="@string/openapsama_max_daily_safety_multiplier_summary"
                 android:digits="0123456789.,"
@@ -124,7 +126,7 @@
                 validate:minNumber="1"
                 validate:testType="numericRange" />
 
-            <com.andreabaccega.widget.ValidatingEditTextPreference
+            <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
                 android:defaultValue="4"
                 android:dialogMessage="@string/openapsama_current_basal_safety_multiplier_summary"
                 android:digits="0123456789.,"

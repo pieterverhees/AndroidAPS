@@ -13,7 +13,7 @@
             android:entries="@array/aps_modeArray"
             android:entryValues="@array/aps_modeValues"/>
 
-        <com.andreabaccega.widget.ValidatingEditTextPreference
+        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             android:defaultValue="20"
             android:dialogMessage="@string/loop_openmode_min_change_summary"
             android:digits="0123456789"

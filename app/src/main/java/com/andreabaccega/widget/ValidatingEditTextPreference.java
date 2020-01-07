@@ -1,4 +1,4 @@
-package com.andreabaccega.widget;
+package info.nightscout.androidaps.utils.textValidators;
 
 
 import android.content.Context;
@@ -13,11 +13,15 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 
+import info.nightscout.androidaps.utils.textValidator.DefaultEditTextValidator;
+import info.nightscout.androidaps.utils.textValidator.EditTextValidator;
+
 /**
  * A validating {@link EditTextPreference} validation is performed when the OK
  * or AlertDialog.BUTTON_POSITIVE button is clicked. When invalid an error
  * message is displayed and the EditTextPreference is not dismissed
  */
+/*
 public class ValidatingEditTextPreference extends EditTextPreference {
     public ValidatingEditTextPreference(Context context) {
         super(context);
@@ -153,3 +157,4 @@ public class ValidatingEditTextPreference extends EditTextPreference {
     private EditTextValidator editTextValidator;
 
 }
+*/
