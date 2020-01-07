@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:validate="http://schemas.android.com/apk/res-auto">
     <PreferenceCategory
         android:key="InsulinOrefFreePeak"
@@ -18,4 +18,4 @@
             android:key="@string/key_insulin_oref_peak" />
     </PreferenceCategory>
 
-</PreferenceScreen>
+</androidx.preference.PreferenceScreen>

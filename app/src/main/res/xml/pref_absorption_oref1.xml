@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:validate="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
@@ -32,8 +32,8 @@
             validate:minNumber="4"
             validate:testType="numericRange" />
 
-        <PreferenceScreen
-            android:key="@string/advancedsettings_title"
+        <androidx.preference.PreferenceScreen
+            android:key="absorption_oref1_advanced"
             android:title="@string/advancedsettings_title">
 
             <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
@@ -63,8 +63,8 @@
                 validate:floatminNumber="0.1"
                 validate:testType="floatNumericRange" />
 
-        </PreferenceScreen>
+        </androidx.preference.PreferenceScreen>
 
     </PreferenceCategory>
 
-</PreferenceScreen>
+</androidx.preference.PreferenceScreen>

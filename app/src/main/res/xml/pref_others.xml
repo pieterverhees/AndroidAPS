@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:validate="http://schemas.android.com/apk/res-auto">
     <PreferenceCategory
         android:key="others"
         android:title="@string/othersettings_title">
-        <PreferenceScreen
+        <androidx.preference.PreferenceScreen
             android:key="@string/default_temptargets"
             android:title="@string/default_temptargets">
             <EditTextPreference
@@ -37,9 +37,9 @@
                 android:inputType="numberDecimal"
                 android:key="@string/key_hypo_target"
                 android:title="@string/hypo_target" />
-        </PreferenceScreen>
+        </androidx.preference.PreferenceScreen>
 
-        <PreferenceScreen
+        <androidx.preference.PreferenceScreen
             android:key="@string/fillbolus_title"
             android:title="@string/fillbolus_title">
             <EditTextPreference
@@ -57,9 +57,9 @@
                 android:inputType="numberDecimal"
                 android:key="fill_button3"
                 android:title="@string/button3" />
-        </PreferenceScreen>
+        </androidx.preference.PreferenceScreen>
 
-        <PreferenceScreen
+        <androidx.preference.PreferenceScreen
             android:summary="@string/prefs_range_summary"
             android:key="@string/prefs_range_title"
             android:title="@string/prefs_range_title">
@@ -73,14 +73,14 @@
                 android:inputType="numberDecimal"
                 android:key="@string/key_high_mark"
                 android:title="@string/high_mark" />
-        </PreferenceScreen>
+        </androidx.preference.PreferenceScreen>
         <SwitchPreference
             android:defaultValue="false"
             android:key="@string/key_short_tabtitles"
             android:title="@string/short_tabtitles" />
     </PreferenceCategory>
 
-    <PreferenceScreen
+    <androidx.preference.PreferenceScreen
         android:key="@string/localalertsettings_title"
         android:title="@string/localalertsettings_title">
         <SwitchPreference
@@ -107,9 +107,9 @@
             android:key="@string/key_pump_unreachable_threshold"
             android:title="@string/pump_unreachable_threshold">
         </info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference>
-    </PreferenceScreen>
+    </androidx.preference.PreferenceScreen>
     <SwitchPreference
         android:defaultValue="false"
         android:key="@string/key_raise_notifications_as_android_notifications"
         android:title="@string/raise_notifications_as_android_notifications" />
-</PreferenceScreen>
+</androidx.preference.PreferenceScreen>

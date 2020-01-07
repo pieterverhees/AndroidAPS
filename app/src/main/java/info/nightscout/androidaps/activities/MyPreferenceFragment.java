@@ -6,12 +6,16 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.XmlRes;
 import androidx.preference.EditTextPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceGroup;
 import androidx.preference.PreferenceManager;
+import androidx.preference.PreferenceScreen;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
@@ -28,7 +32,6 @@ import info.nightscout.androidaps.data.Profile;
 import info.nightscout.androidaps.events.EventPreferenceChange;
 import info.nightscout.androidaps.events.EventRebuildTabs;
 import info.nightscout.androidaps.interfaces.PluginBase;
-import info.nightscout.androidaps.interfaces.PluginType;
 import info.nightscout.androidaps.plugins.aps.loop.LoopPlugin;
 import info.nightscout.androidaps.plugins.aps.openAPSAMA.OpenAPSAMAPlugin;
 import info.nightscout.androidaps.plugins.aps.openAPSMA.OpenAPSMAPlugin;
@@ -114,7 +117,7 @@ public class MyPreferenceFragment extends PreferenceFragmentCompat implements Sh
 
     private void addPreferencesFromResourceIfEnabled(PluginBase p, String rootKey) {
         if (p.isEnabled() && p.getPreferencesId() != -1)
-            setPreferencesFromResource(p.getPreferencesId(), rootKey);
+            addPreferencesFromResource(p.getPreferencesId(), rootKey);
     }
 
     @Override public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -127,17 +130,21 @@ public class MyPreferenceFragment extends PreferenceFragmentCompat implements Sh
             id = savedInstanceState.getInt("id");
         }
 
+        if (getArguments() != null && getArguments().containsKey("id")) {
+            id = getArguments().getInt("id");
+        }
+
         if (id != -1) {
-            addPreferencesFromResource(id);
+            addPreferencesFromResource(id, rootKey);
         } else {
 
             if (!Config.NSCLIENT) {
-                addPreferencesFromResource(R.xml.pref_password);
+                addPreferencesFromResource(R.xml.pref_password, rootKey);
             }
-            addPreferencesFromResource(R.xml.pref_general);
-            addPreferencesFromResource(R.xml.pref_age);
+            addPreferencesFromResource(R.xml.pref_general, rootKey);
+            addPreferencesFromResource(R.xml.pref_age, rootKey);
 
-            addPreferencesFromResource(R.xml.pref_overview);
+            addPreferencesFromResource(R.xml.pref_overview, rootKey);
 
             addPreferencesFromResourceIfEnabled(eversensePlugin, rootKey);
             addPreferencesFromResourceIfEnabled(dexcomPlugin, rootKey);
@@ -179,8 +186,8 @@ public class MyPreferenceFragment extends PreferenceFragmentCompat implements Sh
             addPreferencesFromResourceIfEnabled(smsCommunicatorPlugin, rootKey);
             addPreferencesFromResourceIfEnabled(automationPlugin, rootKey);
 
-            addPreferencesFromResource(R.xml.pref_others);
-            addPreferencesFromResource(R.xml.pref_datachoices);
+            addPreferencesFromResource(R.xml.pref_others, rootKey);
+            addPreferencesFromResource(R.xml.pref_datachoices, rootKey);
 
             addPreferencesFromResourceIfEnabled(wearPlugin, rootKey);
             addPreferencesFromResourceIfEnabled(statusLinePlugin, rootKey);
@@ -212,6 +219,23 @@ public class MyPreferenceFragment extends PreferenceFragmentCompat implements Sh
             OKDialog.show(getActivity(), MainApp.gs(R.string.configbuilder_sensitivity), MainApp.gs(R.string.sensitivity_warning));
         }
         updatePrefSummary(findPreference(key));
+    }
+
+    public void addPreferencesFromResource(@XmlRes int preferencesResId, @Nullable String key) {
+        final PreferenceScreen xmlRoot = getPreferenceManager().inflateFromResource(getContext(),
+                preferencesResId, null);
+
+        final Preference root;
+        if (key != null) {
+            root = xmlRoot.findPreference(key);
+            if (!(root instanceof PreferenceScreen)) {
+                throw new IllegalArgumentException("Preference object with key " + key
+                        + " is not a PreferenceScreen");
+            }
+            setPreferenceScreen((PreferenceScreen) root);
+        } else {
+            addPreferencesFromResource(preferencesResId);
+        }
     }
 
     private static void adjustUnitDependentPrefs(Preference pref) {
@@ -253,7 +277,8 @@ public class MyPreferenceFragment extends PreferenceFragmentCompat implements Sh
             adjustUnitDependentPrefs(pref);
     }
 
-    public static void initSummary(Preference p) {
+    private static void initSummary(Preference p) {
+        p.setIconSpaceReserved(false); // remove extra spacing on left after migration to androidx
         if (p instanceof PreferenceGroup) {
             PreferenceGroup pGrp = (PreferenceGroup) p;
             for (int i = 0; i < pGrp.getPreferenceCount(); i++) {
@@ -266,7 +291,7 @@ public class MyPreferenceFragment extends PreferenceFragmentCompat implements Sh
 
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NotNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt("id", id);
     }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:validate="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory android:title="@string/overview">
@@ -10,7 +10,7 @@
             android:title="@string/keep_screen_on_title"
             android:summary="@string/keep_screen_on_summary"/>
 
-        <PreferenceScreen
+        <androidx.preference.PreferenceScreen
             android:key="@string/overview_buttons_selection"
             android:title="@string/overview_buttons_selection">
 
@@ -130,7 +130,7 @@
                 android:summary="@string/show_calibration_button_summary"
                 android:title="@string/overview_calibration" />
 
-        </PreferenceScreen>
+        </androidx.preference.PreferenceScreen>
 
         <Preference
             android:key="quickwizard"
@@ -143,9 +143,9 @@
             android:key="@string/key_show_notes_entry_dialogs"
             android:title="@string/overview_show_notes_field_in_dialogs_title" />
 
-        <PreferenceScreen
-            android:title="@string/advancedsettings_title"
-            android:key="@string/advancedsettings_title">
+        <androidx.preference.PreferenceScreen
+            android:key="absorption_overview_advanced"
+            android:title="@string/advancedsettings_title">
 
             <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
                 android:defaultValue="100"
@@ -230,8 +230,8 @@
                 validate:minNumber="0"
                 validate:testType="numericRange" />
 
-        </PreferenceScreen>
+        </androidx.preference.PreferenceScreen>
 
     </PreferenceCategory>
 
-</PreferenceScreen>
+</androidx.preference.PreferenceScreen>
