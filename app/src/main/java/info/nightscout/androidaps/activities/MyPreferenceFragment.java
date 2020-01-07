@@ -228,6 +228,8 @@ public class MyPreferenceFragment extends PreferenceFragmentCompat implements Sh
         final Preference root;
         if (key != null) {
             root = xmlRoot.findPreference(key);
+            if (root == null)
+                return;
             if (!(root instanceof PreferenceScreen)) {
                 throw new IllegalArgumentException("Preference object with key " + key
                         + " is not a PreferenceScreen");

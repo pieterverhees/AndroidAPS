@@ -71,8 +71,7 @@ public class DefaultEditTextValidator
         resetValidators(context);
     }
 
-    public DefaultEditTextValidator(EditText editText, AttributeSet attrs, Context context) {
-        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.FormEditText);
+    public DefaultEditTextValidator(EditText editText, TypedArray typedArray, Context context) {
         emptyAllowed = typedArray.getBoolean(R.styleable.FormEditText_emptyAllowed, false);
         testType = typedArray.getInt(R.styleable.FormEditText_testType, EditTextValidator.TEST_NOCHECK);
         testErrorString = typedArray.getString(R.styleable.FormEditText_testErrorString);
@@ -138,6 +137,7 @@ public class DefaultEditTextValidator
             tw = new TextWatcher() {
 
                 public void afterTextChanged(Editable s) {
+                    testValidity();
                 }
 
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
