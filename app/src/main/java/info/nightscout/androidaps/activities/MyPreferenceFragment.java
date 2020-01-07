@@ -122,7 +122,9 @@ public class MyPreferenceFragment extends PreferenceFragmentCompat implements Sh
 
     @Override public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        PreferenceManager.getDefaultSharedPreferences(getContext()).registerOnSharedPreferenceChangeListener(this);
+        PreferenceManager
+                .getDefaultSharedPreferences(getContext())
+                .registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
