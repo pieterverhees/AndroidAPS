@@ -1,16 +1,17 @@
 package com.andreabaccega.widget;
 
-import android.app.AlertDialog;
+
 import android.content.Context;
 import android.os.Bundle;
-import android.preference.EditTextPreference;
+import androidx.preference.EditTextPreference;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
+
+import androidx.appcompat.app.AlertDialog;
 
 /**
  * A validating {@link EditTextPreference} validation is performed when the OK
@@ -47,6 +48,7 @@ public class ValidatingEditTextPreference extends EditTextPreference {
 
     @Override
     protected void showDialog(Bundle state) {
+        getPreferenceManager().getOnDisplayPreferenceDialogListener()
         super.showDialog(state);
 
         // If the dialog isn't an instance of alert dialog this code is useless
@@ -76,12 +78,12 @@ public class ValidatingEditTextPreference extends EditTextPreference {
 
             // add an editor action listener for the 'done/next' buttons on a
             // soft keyboard
-            getEditText().setOnEditorActionListener(l);
+//            getEditText().setOnEditorActionListener(l);
         }
     }
 
     private final class ValidatingOnClickListener implements
-            View.OnClickListener, OnEditorActionListener {
+            View.OnClickListener, TextView.OnEditorActionListener {
         private ValidatingOnClickListener(int originalBottomPadding,
                                           AlertDialog theDialog) {
             this.originalBottomPadding = originalBottomPadding;

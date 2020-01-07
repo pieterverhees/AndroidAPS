@@ -1,13 +1,12 @@
 package info.nightscout.androidaps.plugins.general.smsCommunicator
 
 import android.content.Intent
-import android.preference.EditTextPreference
-import android.preference.Preference
-import android.preference.Preference.OnPreferenceChangeListener
-import android.preference.PreferenceFragment
 import android.telephony.SmsManager
 import android.telephony.SmsMessage
 import android.text.TextUtils
+import androidx.preference.EditTextPreference
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
 import com.andreabaccega.widget.ValidatingEditTextPreference
 import info.nightscout.androidaps.Constants
 import info.nightscout.androidaps.R
@@ -110,7 +109,7 @@ class SmsCommunicatorPlugin @Inject constructor(
         super.onStop()
     }
 
-    override fun preprocessPreferences(preferenceFragment: PreferenceFragment) {
+    override fun preprocessPreferences(preferenceFragment: PreferenceFragmentCompat) {
         super.preprocessPreferences(preferenceFragment)
         val distance = preferenceFragment.findPreference(resourceHelper.gs(R.string.key_smscommunicator_remotebolusmindistance)) as ValidatingEditTextPreference?
             ?: return
@@ -125,7 +124,7 @@ class SmsCommunicatorPlugin @Inject constructor(
             distance.title = resourceHelper.gs(R.string.smscommunicator_remotebolusmindistance)
             distance.isEnabled = true
         }
-        allowedNumbers.onPreferenceChangeListener = OnPreferenceChangeListener { _: Preference?, newValue: Any ->
+        allowedNumbers.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _: Preference?, newValue: Any ->
             if (!areMoreNumbers(newValue as String)) {
                 distance.text = (Constants.remoteBolusMinDistance / (60 * 1000L)).toString()
                 distance.title = (resourceHelper.gs(R.string.smscommunicator_remotebolusmindistance)

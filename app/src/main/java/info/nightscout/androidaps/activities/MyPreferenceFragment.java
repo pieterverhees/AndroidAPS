@@ -1,14 +1,17 @@
 package info.nightscout.androidaps.activities;
 
+import android.content.Context;
 import android.os.Bundle;
-import android.preference.PreferenceFragment;
+
+import androidx.annotation.NonNull;
+import androidx.preference.PreferenceFragmentCompat;
 
 import javax.inject.Inject;
 
-import dagger.android.AndroidInjection;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.HasAndroidInjector;
+import dagger.android.support.AndroidSupportInjection;
 import info.nightscout.androidaps.Config;
 import info.nightscout.androidaps.MainApp;
 import info.nightscout.androidaps.R;
@@ -48,10 +51,8 @@ import info.nightscout.androidaps.plugins.source.TomatoPlugin;
 /**
  * Created by adrian on 2019-12-23.
  */
-public class MyPreferenceFragment extends PreferenceFragment implements HasAndroidInjector {
+public class MyPreferenceFragment extends PreferenceFragmentCompat implements HasAndroidInjector {
     private Integer id;
-
-    @Inject DispatchingAndroidInjector<Object> androidInjector;
 
     @Inject AutomationPlugin automationPlugin;
     @Inject DanaRPlugin danaRPlugin;
@@ -76,16 +77,7 @@ public class MyPreferenceFragment extends PreferenceFragment implements HasAndro
     @Inject VirtualPumpPlugin virtualPumpPlugin;
     @Inject WearPlugin wearPlugin;
 
-    @Override
-    public void setArguments(Bundle args) {
-        super.setArguments(args);
-        id = args.getInt("id");
-    }
-
-    void addPreferencesFromResourceIfEnabled(PluginBase p, PluginType type) {
-        if (p.isEnabled(type) && p.getPreferencesId() != -1)
-            addPreferencesFromResource(p.getPreferencesId());
-    }
+    @Inject DispatchingAndroidInjector<Object> androidInjector;
 
     @Override
     public AndroidInjector<Object> androidInjector() {
@@ -93,15 +85,33 @@ public class MyPreferenceFragment extends PreferenceFragment implements HasAndro
     }
 
     @Override
+    public void onAttach(@NonNull Context context) {
+        AndroidSupportInjection.inject(this);
+        super.onAttach(context);
+    }
+
+    @Override
+    public void setArguments(Bundle args) {
+        super.setArguments(args);
+        id = args.getInt("id");
+    }
+
+    private void addPreferencesFromResourceIfEnabled(PluginBase p, PluginType type) {
+        if (p.isEnabled(type) && p.getPreferencesId() != -1)
+            addPreferencesFromResource(p.getPreferencesId());
+    }
+
+    @Override public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+        //setPreferencesFromResource(R.xml.mainfile, rootKey);
+    }
+
+    @Override
     public void onCreate(final Bundle savedInstanceState) {
-        AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState != null && savedInstanceState.containsKey("id")) {
             id = savedInstanceState.getInt("id");
         }
-
-        AndroidInjection.inject(this);
 
         if (id != -1) {
             addPreferencesFromResource(id);

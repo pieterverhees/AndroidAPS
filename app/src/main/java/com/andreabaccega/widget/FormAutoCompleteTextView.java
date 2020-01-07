@@ -7,8 +7,9 @@ import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
-import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
+
+import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -18,7 +19,7 @@ import java.lang.reflect.Method;
  *
  * @author Said Tahsin Dane <tasomaniac@gmail.com>
  */
-public class FormAutoCompleteTextView extends AutoCompleteTextView {
+public class FormAutoCompleteTextView extends AppCompatAutoCompleteTextView {
     public FormAutoCompleteTextView(Context context) {
         super(context);
         // FIXME how should this constructor be handled

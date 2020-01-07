@@ -3,20 +3,17 @@ package info.nightscout.androidaps.activities;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.EditTextPreference;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceGroup;
-import android.preference.PreferenceManager;
+
+import androidx.annotation.NonNull;
+import androidx.preference.EditTextPreference;
+import androidx.preference.ListPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceGroup;
+import androidx.preference.PreferenceManager;
 
 import java.util.Arrays;
 
-import javax.inject.Inject;
-
 import dagger.android.AndroidInjection;
-import dagger.android.AndroidInjector;
-import dagger.android.DispatchingAndroidInjector;
 import dagger.android.HasAndroidInjector;
 import info.nightscout.androidaps.MainApp;
 import info.nightscout.androidaps.R;
@@ -30,14 +27,11 @@ import info.nightscout.androidaps.utils.OKDialog;
 import info.nightscout.androidaps.utils.SP;
 import info.nightscout.androidaps.utils.SafeParse;
 
-public class PreferencesActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener, HasAndroidInjector {
+public class PreferencesActivity extends NoSplashAppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener, HasAndroidInjector {
     MyPreferenceFragment myPreferenceFragment;
 
-    @Inject
-    DispatchingAndroidInjector<Object> androidInjector;
-
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         AndroidInjection.inject(this);
         setTheme(R.style.AppTheme_NoActionBar);
         super.onCreate(savedInstanceState);
@@ -45,17 +39,12 @@ public class PreferencesActivity extends PreferenceActivity implements SharedPre
         Bundle args = new Bundle();
         args.putInt("id", getIntent().getIntExtra("id", -1));
         myPreferenceFragment.setArguments(args);
-        getFragmentManager().beginTransaction().replace(android.R.id.content, myPreferenceFragment).commit();
+        getSupportFragmentManager().beginTransaction().replace(android.R.id.content, myPreferenceFragment).commit();
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
-    public AndroidInjector<Object> androidInjector() {
-        return androidInjector;
-    }
-
-    @Override
-    public void attachBaseContext(Context newBase) {
+    public void attachBaseContext(@NonNull Context newBase) {
         super.attachBaseContext(LocaleHelper.INSTANCE.wrap(newBase));
     }
 
