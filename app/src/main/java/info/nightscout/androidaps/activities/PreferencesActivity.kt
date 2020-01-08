@@ -10,10 +10,11 @@ import info.nightscout.androidaps.utils.resources.ResourceHelper
 import javax.inject.Inject
 
 class PreferencesActivity : NoSplashAppCompatActivity(), PreferenceFragmentCompat.OnPreferenceStartScreenCallback {
+
     @Inject lateinit var resourceHelper: ResourceHelper
 
     var preferenceId = 0
-    override fun onCreate(savedInstanceState: Bundle?) { //AndroidInjection.inject(this);
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_single_fragment)
         title = resourceHelper.gs(R.string.nav_preferences)
